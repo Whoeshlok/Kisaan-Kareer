@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --green-950: #16281c;
+  --green-900: #1f3d2b;
+  --green-800: #28503a;
+  --green-600: #3f7a55;
+  --green-200: #d8e9dc;
+  --green-100: #eaf3ec;
+
+  --clay-500: #e07a5f;
+  --clay-100: #fbe4dc;
+
+  --gold-500: #c98a2e;
+  --gold-100: #f6ead2;
+
+  --sky-500: #3f6fa8;
+  --sky-100: #dfe8f3;
+
+  --cream-50: #fbf8f2;
+  --cream-100: #f5f0e6;
+  --paper: #ffffff;
+
+  --ink-900: #21241f;
+  --ink-600: #565b52;
+  --ink-400: #8a8f83;
+
+  --line: #e7e1d3;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+html,
+body {
+  background: var(--cream-50);
+  color: var(--ink-900);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
