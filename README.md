@@ -1,87 +1,209 @@
-# Kisaan Kareer
+# Kisaan-Kareer
 
-Farmer field companion — Next.js (App Router) + Tailwind CSS + Supabase + Gemini + OpenWeather.
+> **Better decisions. Healthier crops. Prosperous farmers.**
 
-## Setup
+Kisaan-Kareer is an AI-powered, location-aware farmer decision-support platform built for Indian farmers. It helps farmers manage farms and crops, monitor weather and mandi prices, record agricultural activities, detect crop diseases, and receive personalized farming guidance.
+
+## Project URL
+
+[Open Kisaan-Kareer](https://3000-iszwj2i420wz990jlqbpw-677b543a.sg2.manus.computer)
+
+> This is the current development preview URL and may not be a permanent production URL.
+
+## Features
+
+- Email/password authentication.
+- Device-based and manual location setup.
+- Multiple farms per farmer.
+- Multiple crops per farm.
+- Crop variety, stage, sowing date, harvest date, and chemical tracking.
+- Treatment and irrigation history.
+- Location-aware weather updates.
+- District-based mandi prices.
+- AI crop disease detection from uploaded images.
+- Farm-profile-aware AI farming assistant.
+- Text and voice-based questions.
+- Multilingual interface and assistant responses.
+- Whisper-based voice transcription.
+- Alerts and farming recommendations.
+- Go Organic section with organic farming guidance and mentor-mentee concepts.
+
+## Tech Stack
+
+- **Frontend:** React, TypeScript, Vite
+- **Backend:** Node.js, Express
+- **API:** tRPC and Zod
+- **Database:** MySQL-compatible database
+- **ORM:** Drizzle ORM
+- **Database driver:** mysql2
+- **Data fetching:** TanStack React Query
+- **Styling:** Tailwind CSS and custom CSS
+- **AI:** Built-in LLM and vision services
+- **Speech-to-text:** Whisper-compatible `whisper-1`
+- **Testing:** Vitest
+- **Package manager:** pnpm
+
+## Architecture
+
+```text
+React Frontend
+      ↓
+tRPC API
+      ↓
+Node.js + Express Backend
+      ↓
+Drizzle ORM
+      ↓
+MySQL-Compatible Database
+```
+
+The backend also integrates with:
+
+- Open-Meteo for weather.
+- data.gov.in / Agmarknet for mandi prices.
+- Nominatim / OpenStreetMap for geocoding.
+- ISRIC SoilGrids for soil information.
+- Built-in LLM and vision services.
+- Whisper-compatible speech-to-text.
+- Managed object storage for crop images.
+
+## Database
+
+The application currently uses a MySQL-compatible database through:
+
+```text
+Drizzle ORM → mysql2 → MySQL-compatible database
+```
+
+> Supabase is not currently connected.
+
+Main tables include:
+
+- `users`
+- `farms`
+- `crops`
+- `treatmentHistory`
+- `irrigationHistory`
+- `soilTests`
+- `marketPrices`
+- `alerts`
+- `chatMessages`
+- `recommendations`
+- `weatherSnapshots`
+- `diseaseScans`
+
+The AI assistant uses the selected farm’s saved crop, soil, irrigation, treatment, and location data to provide personalized answers.
+
+## Voice Assistant
+
+The voice flow is:
+
+```text
+Farmer speaks
+   ↓
+Browser records audio
+   ↓
+Whisper converts speech to text
+   ↓
+Farm context is added
+   ↓
+AI assistant generates a response
+```
+
+Supported languages include English, Hindi, Tamil, Telugu, Marathi, Bengali, Gujarati, Kannada, Malayalam, Punjabi, and Urdu.
+
+## Authentication
+
+Passwords are hashed using Node.js `scrypt`. Raw passwords are never stored. After registration, the user receives a secure session cookie and a default farm profile is created.
+
+## Development
+
+Install dependencies:
 
 ```bash
-npm install
-cp .env.local.example .env.local   # fill in your real keys
-npm run dev
+pnpm install
 ```
 
-## Environment variables (`.env.local`)
+Start the development server:
 
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — your Supabase project
-- `GEMINI_API_KEY` — Google AI Studio key, used by `lib/geminiEngine.js`
-- `OPENWEATHER_API_KEY` — used by `app/api/weather/route.js`
-- `NEXT_PUBLIC_DEMO_PROFILE_ID` (optional) — until real auth exists, every page reads/writes
-  this one profile id. Defaults to `demo-farmer`.
-
-## Supabase schema this code expects
-
-If your existing tables use different names/columns, the only files that need updating are
-`lib/supabaseClient.js` (queries) — everything else calls those helper functions.
-
-```sql
-create table profiles (
-  id text primary key,
-  name text,
-  location text,
-  lat float8,
-  lon float8,
-  language text,
-  crop text,
-  variety text,
-  crop_stage text,
-  farm_size text,
-  irrigation_method text,
-  organic_preference text
-);
-
-create table mandi_prices (
-  id uuid primary key default gen_random_uuid(),
-  crop text,
-  market text,
-  price numeric,
-  unit text,
-  change_pct numeric,
-  updated_at timestamptz default now()
-);
-
-create table alerts (
-  id uuid primary key default gen_random_uuid(),
-  profile_id text references profiles(id),
-  title text,
-  detail text,
-  read boolean default false,
-  created_at timestamptz default now()
-);
+```bash
+pnpm dev
 ```
 
-## How the one shared AI function works
+Run type checks:
 
-`lib/geminiEngine.js` exports `getRecommendation(farmerProfile, context, task)`, called from the
-server-side `/api/recommend` route. `task` is one of `"roadmap"`, `"organic"`, `"ask"`, `"alert"` —
-each builds a different prompt but shares the same Gemini call. The client never calls Gemini
-directly; it calls `requestRecommendation()` from `lib/getRecommendationClient.js`, which hits
-`/api/recommend`.
+```bash
+pnpm check
+```
 
-## What's implemented
+Run tests:
 
-- **Home** — hero greeting + live weather, quick access (Ask, Mandi, Organic Advisor, Alerts)
-  with live Mandi/Alerts subtitles, AI roadmap card
-- **Organic Advisor** — "Should I switch to organic?" → 3 tailored cards (fear / counter-fact / phased step)
-- **Ask** — typed question, Web Speech API voice input, photo entry point (UI only)
-- **Mandi** — live prices from Supabase, filtered by the farmer's crop or all crops
-- **Alerts** — runs the proactive Gemini alert check on page load (also triggered from Home),
-  writes a new alert into Supabase if one is warranted, lists all alerts
-- **Profile** — view/edit the farmer field profile that every other feature reads from
-- **Onboarding** — the single form that creates the profile
+```bash
+pnpm test
+```
 
-## Known gaps / next steps
+Build the application:
 
-- No real auth — everything is scoped to `NEXT_PUBLIC_DEMO_PROFILE_ID`
-- Photo upload on the Ask page is UI-only (no image model wired up)
-- Voice output (text-to-speech for the answer) isn't wired — only speech-to-text input is
-- Bottom nav intentionally left untouched (Home, Ask, Mandi, Alerts, Profile)
+```bash
+pnpm build
+```
+
+Start the production build:
+
+```bash
+pnpm start
+```
+
+Apply database migrations:
+
+```bash
+pnpm db:push
+```
+
+Seed demo data:
+
+```bash
+pnpm db:seed:demo
+```
+
+## Environment Variables
+
+```text
+DATABASE_URL
+JWT_SECRET
+BUILT_IN_FORGE_API_URL
+BUILT_IN_FORGE_API_KEY
+VITE_APP_ID
+OAUTH_SERVER_URL
+VITE_OAUTH_PORTAL_URL
+```
+
+Never commit database credentials, API keys, or `.env` files to the repository.
+
+## Project Structure
+
+```text
+client/
+  src/
+    pages/
+    components/
+    lib/
+    App.tsx
+
+server/
+  _core/
+  db.ts
+  routers.ts
+  password.ts
+  storage.ts
+  seed-demo.ts
+
+drizzle/
+  schema.ts
+  migrations/
+
+shared/
+  const.ts
+```
+
+
